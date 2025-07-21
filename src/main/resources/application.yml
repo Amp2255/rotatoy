@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: rotatoy
+  data:
+    mongodb:
+      uri: 'mongodb://172.31.7.157:27017'
+      database: rotatoy
+  banner:
+    location: 'classpath:/banner.txt'
+server:
+  port: '8081'
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info'
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: DEBUG
+    com:
+      example: TRACE
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'

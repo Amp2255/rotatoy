@@ -1,0 +1,2 @@
+In a Spring Boot CRUD app, the recommended and most efficient order is to build from bottom to top:
+Recommended Order: Repository ➝ Service ➝ Controller
