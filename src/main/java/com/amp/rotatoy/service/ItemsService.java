@@ -24,11 +24,9 @@ public class ItemsService {
        
     private ItemsMapper itemsMapper;
     private final ItemsRepo itemsRepo;
-    public ItemsService(){
-        this.itemsRepo = null;
-        
-    }
-     private RotateActions rotateActions;
+    
+    private RotateActions rotateActions;
+
     @Autowired
     public ItemsService(ItemsRepo itemsRepo, ItemsMapper itemsMapper,RotateActions rotateActions){
         this.itemsRepo= itemsRepo;
@@ -61,24 +59,11 @@ public class ItemsService {
    }
 
    public void deleteItemById(String id){
-    try{
-        itemsRepo.deleteById(id);   
-    }
-    catch (Exception e){
-        logger.info("Exception occured while deleting : {}",e.getMessage());
-    }
-    
+        itemsRepo.deleteById(id);
    }
 
    public Optional<Items> findById(String id){
-    Optional<Items> optionalItem = Optional.ofNullable(new Items());
-    try{
-        optionalItem= itemsRepo.findById(id);   
-        
-    }
-    catch (Exception e){
-        logger.info("Exception occured while finding : {}",e.getMessage());
-    }
+    Optional<Items> optionalItem = Optional.empty();
     return optionalItem;
    }
     

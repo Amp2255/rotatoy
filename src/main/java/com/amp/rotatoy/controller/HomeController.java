@@ -1,21 +1,12 @@
 package com.amp.rotatoy.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import com.amp.rotatoy.dto.ApiResponse;
-import com.amp.rotatoy.dto.ItemsDto;
-import com.amp.rotatoy.mapper.ItemsMapper;
-import com.amp.rotatoy.mapper.RotateActions;
-import com.amp.rotatoy.model.Items;
-import com.amp.rotatoy.service.ItemsService;
-
-import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +16,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.amp.rotatoy.dto.ApiResponse;
+import com.amp.rotatoy.dto.ItemsDto;
+import com.amp.rotatoy.mapper.ItemsMapper;
+import com.amp.rotatoy.mapper.RotateActions;
+import com.amp.rotatoy.model.Items;
+import com.amp.rotatoy.service.ItemsService;
 
 @RestController
 public class HomeController {
@@ -120,7 +118,7 @@ public class HomeController {
     public ResponseEntity<ApiResponse<Items>> updateAnItem(@RequestParam String id,@RequestBody ItemsDto itemsDto) {
        try{
         Items updatedItem = itemsService.updateAnItem(id, itemsDto);
-        if(updatedItem.getName().isEmpty()){
+        if(updatedItem == null){
             ApiResponse<Items>response = new ApiResponse<>(false,"Update failed",null);
             return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }else{
