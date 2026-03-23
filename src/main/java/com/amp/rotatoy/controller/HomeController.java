@@ -10,13 +10,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import java.util.Base64;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.amp.rotatoy.dto.ApiResponse;
 import com.amp.rotatoy.dto.ItemsDto;
@@ -90,9 +94,14 @@ public class HomeController {
        
     }
     
-    @PostMapping("item")
-    public ResponseEntity<ApiResponse<Items>> saveNewItem(@RequestBody ItemsDto itemsDto) {
+    @PostMapping(value = "item", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<Items>> saveNewItem(
+            @RequestPart("item") ItemsDto itemsDto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
         try{
+            if (image != null && !image.isEmpty()) {
+                itemsDto.setImage(toJpegBase64(image));
+            }
             logger.info("Item to save (name) is :{} ", itemsDto.getName());
             Items itemToSave = itemsMapper.toEntity(itemsDto);
             Items saved = itemsService.saveNewItem(itemToSave);
@@ -104,28 +113,42 @@ public class HomeController {
             else{
                 ApiResponse<Items> response = new ApiResponse<>(true, "New item saved", saved);
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            
+
             }
+        }
+        catch(IllegalArgumentException e){
+            ApiResponse<Items> response = new ApiResponse<>(false, e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         catch(Exception e){
             ApiResponse<Items> response = new ApiResponse<>(false, e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
+
     }
-    
-    @PatchMapping("item")
-    public ResponseEntity<ApiResponse<Items>> updateAnItem(@RequestParam String id,@RequestBody ItemsDto itemsDto) {
+
+    @PatchMapping(value = "item", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<Items>> updateAnItem(
+            @RequestParam String id,
+            @RequestPart("item") ItemsDto itemsDto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
        try{
-        Items updatedItem = itemsService.updateAnItem(id, itemsDto);
-        if(updatedItem == null){
-            ApiResponse<Items>response = new ApiResponse<>(false,"Update failed",null);
-            return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
-        }else{
-            ApiResponse<Items>response = new ApiResponse<>(true,"Item updated",updatedItem);
-            return new ResponseEntity<>(response,HttpStatus.OK);
-        }
+            if (image != null && !image.isEmpty()) {
+                itemsDto.setImage(toJpegBase64(image));
+            }
+            Items updatedItem = itemsService.updateAnItem(id, itemsDto);
+            if(updatedItem == null){
+                ApiResponse<Items>response = new ApiResponse<>(false,"Update failed",null);
+                return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+            }else{
+                ApiResponse<Items>response = new ApiResponse<>(true,"Item updated",updatedItem);
+                return new ResponseEntity<>(response,HttpStatus.OK);
+            }
        }
+       catch(IllegalArgumentException e){
+            ApiResponse<Items> response = new ApiResponse<>(false, e.getMessage(), null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
        catch(Exception e){
             ApiResponse<Items> response = new ApiResponse<>(false, e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,5 +251,13 @@ public class HomeController {
         }
         
 
-    } 
+    }
+
+    private String toJpegBase64(MultipartFile file) throws Exception {
+        byte[] bytes = file.getBytes();
+        if (bytes.length < 3 || bytes[0] != (byte) 0xFF || bytes[1] != (byte) 0xD8 || bytes[2] != (byte) 0xFF) {
+            throw new IllegalArgumentException("Only JPEG images are accepted");
+        }
+        return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(bytes);
+    }
 }

@@ -63,8 +63,7 @@ public class ItemsService {
    }
 
    public Optional<Items> findById(String id){
-    Optional<Items> optionalItem = Optional.empty();
-    return optionalItem;
+    return itemsRepo.findById(id);
    }
     
    public Page<Items> findByFilter(String filter, Pageable pageable){  
