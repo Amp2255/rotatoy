@@ -3,7 +3,7 @@ spring:
     name: rotatoy
   data:
     mongodb:
-      uri: '${MONGO_URI:mongodb://172.31.7.157:27017}'
+      uri: '${MONGO_URI:mongodb://localhost:27017}'
       database: rotatoy
   banner:
     location: 'classpath:/banner.txt'
