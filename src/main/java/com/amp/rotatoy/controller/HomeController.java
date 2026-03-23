@@ -57,12 +57,12 @@ public class HomeController {
         Pageable pageable = PageRequest.of(page, size, sort);
         
         try{
-            if(status.isEmpty() || status.isBlank()){
+            if(status.isBlank()){
                 logger.info("searcgfield is :{}",searchField);
             Page <Items> itemsPage = itemsService.viewAllItems(searchField,pageable);
             if (itemsPage.getTotalElements()==0){   
                 ApiResponse<Page<Items>> response = new ApiResponse<>(true, "No items found", itemsPage);
-                return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
             else{
                 ApiResponse<Page<Items>> response = new ApiResponse<>(true, "Fetched all items", itemsPage);
@@ -134,18 +134,26 @@ public class HomeController {
 
     @DeleteMapping("item")
     public ResponseEntity<ApiResponse<String>> deleteItemById(@RequestParam String id){
+        ApiResponse<String> response ;
         try{
             if(id.isEmpty()){
-                ApiResponse<String> response = new ApiResponse<>(false,"Id empty", null);
+                response = new ApiResponse<>(false,"Id empty", null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }else{
-                itemsService.deleteItemById(id);
-                ApiResponse<String> response = new ApiResponse<>(true,"Item deleted successfully", "Id deleted:"+id);
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                    Optional<Items> opsItem = itemsService.findById(id);
+                    if(!opsItem.isPresent()){
+                        response = new ApiResponse<>(false,"No item found",null);
+                        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+                    }else{
+                        itemsService.deleteItemById(id);
+                         response = new ApiResponse<>(true,"Item deleted successfully", "Id deleted:"+id);
+                        return new ResponseEntity<>(response, HttpStatus.OK);
+                    }
+                
             }
         }
         catch(Exception e){
-            ApiResponse<String> response = new ApiResponse<>(false, e.getMessage(), null);
+            response = new ApiResponse<>(false, e.getMessage(), null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         
         }
@@ -175,7 +183,7 @@ public class HomeController {
         itemsDto.setStatus(rotateActions.updateItemStatus(itemsDto.getStatus()));
         itemsDto.setLastRotated(rotateActions.updateLastRotatedDate());
         Items updatedItem = itemsService.updateAnItem(id, itemsDto);
-        if(updatedItem.getName().isEmpty()){
+        if(updatedItem == null){
             ApiResponse<Items>response = new ApiResponse<>(false,"Update failed",null);
             return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }else{
@@ -209,7 +217,7 @@ public class HomeController {
     public ResponseEntity<ApiResponse<String>> storeAllItems 
     () {
         try{
-            logger.info("in controller rotate all");
+            logger.info("in controller store all");
             itemsService.storeAllItems();
             ApiResponse<String>response = new ApiResponse<>(true,"Updated successfully","");
             return new ResponseEntity<>(response,HttpStatus.OK);
