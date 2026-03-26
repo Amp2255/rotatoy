@@ -1,5 +1,6 @@
 package com.amp.rotatoy.controller;
 
+import java.util.Base64;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -10,8 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import java.util.Base64;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,6 +26,7 @@ import com.amp.rotatoy.dto.ItemsDto;
 import com.amp.rotatoy.mapper.ItemsMapper;
 import com.amp.rotatoy.mapper.RotateActions;
 import com.amp.rotatoy.model.Items;
+import com.amp.rotatoy.service.ClaudeImageService;
 import com.amp.rotatoy.service.ItemsService;
 
 @RestController
@@ -36,16 +36,18 @@ public class HomeController {
 
 
     private final ItemsService itemsService;
+    private final ClaudeImageService claudeImageService;
 
-     
+
     private ItemsMapper itemsMapper;
 
     private RotateActions rotateActions;
-   
-    public HomeController(ItemsService itemsService, ItemsMapper itemsMapper, RotateActions rotateActions){
+
+    public HomeController(ItemsService itemsService, ItemsMapper itemsMapper, RotateActions rotateActions, ClaudeImageService claudeImageService){
         this.itemsService = itemsService;
         this.itemsMapper = itemsMapper;
         this.rotateActions =rotateActions;
+        this.claudeImageService = claudeImageService;
     }
     
     @GetMapping("/item")
@@ -253,6 +255,15 @@ public class HomeController {
 
     }
 
+    
+    
+
+
+
+
+
+
+    
     private String toJpegBase64(MultipartFile file) throws Exception {
         byte[] bytes = file.getBytes();
         if (bytes.length < 3 || bytes[0] != (byte) 0xFF || bytes[1] != (byte) 0xD8 || bytes[2] != (byte) 0xFF) {
