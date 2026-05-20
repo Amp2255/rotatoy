@@ -3,6 +3,7 @@ package com.amp.rotatoy.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.Mapping;
 
 import com.amp.rotatoy.dto.ItemsDto;
 import com.amp.rotatoy.model.Items;
@@ -20,6 +21,7 @@ public interface ItemsMapper {
     ItemsDto toDto(Items items);
 
     
+    @Mapping(target = "id", ignore = true)
     void updateItemFromDto(ItemsDto dto, @MappingTarget Items items);
 
     
