@@ -1,2 +1,25 @@
-In a Spring Boot CRUD app, the recommended and most efficient order is to build from bottom to top:
-Recommended Order: Repository ➝ Service ➝ Controller
+RotaToy is a lightweight full-stack application designed to manage recurring item/task rotation workflows.
+
+Current features include:
+- Task/item rotation management
+- Basic action tracking
+- Responsive UI
+- REST API integration
+- CRUD operations for recurring workflows
+
+## Current Limitations
+
+- No authentication yet
+- Single-user focused workflow
+- No notifications/reminders
+- Limited analytics/reporting
+
+## Future Improvements
+
+- User authentication and roles
+- Calendar integration
+- Push/email reminders
+- Drag-and-drop scheduling
+- Dashboard and analytics
+- Mobile optimization
+- Docker deployment
