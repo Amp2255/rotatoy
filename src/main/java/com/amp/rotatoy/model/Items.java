@@ -31,4 +31,5 @@ public class Items {
 
   private String image;
 
+  private String imageName;
 }

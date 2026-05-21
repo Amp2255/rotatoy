@@ -54,13 +54,14 @@ public class ItemsService {
    public Items updateAnItem(String id,ItemsDto itemsDto){
     Items existingItem=itemsRepo.findById(id)
             .orElseThrow(() -> new RuntimeException("Item not found: " + id)); 
-    itemsMapper.updateItemFromDto(itemsDto, existingItem );
+    itemsMapper.updateForDelete(itemsDto, existingItem );
     return itemsRepo.save(existingItem);
    }
 
    public void deleteItemById(String id){
         itemsRepo.deleteById(id);
    }
+
 
    public Optional<Items> findById(String id){
     return itemsRepo.findById(id);

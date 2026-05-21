@@ -8,13 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -104,6 +104,7 @@ public class HomeController {
         try{
             if (image != null && !image.isEmpty()) {
                 itemsDto.setImage(toJpegBase64(image));
+                itemsDto.setImageName(image.getName());
             }
             logger.info("Item to save (name) is :{} ", itemsDto.getName());
             Items itemToSave = itemsMapper.toEntity(itemsDto);
@@ -130,15 +131,32 @@ public class HomeController {
 
     }
 
+    
     @PatchMapping(value = "item", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse<Items>> updateAnItem(
-            @RequestParam String id,
-            @RequestPart("item") ItemsDto itemsDto,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+        @RequestParam String id,
+        @RequestPart("item") ItemsDto itemsDto,
+        @RequestPart(value = "image", required = false) MultipartFile image){
        try{
-            if (image != null && !image.isEmpty()) {
-                itemsDto.setImage(toJpegBase64(image));
-            }
+            System.out.println("to edit *******"+ itemsDto);
+          if (image != null && !image.isEmpty()) {
+
+    // New image uploaded
+    itemsDto.setImage(toJpegBase64(image));
+    itemsDto.setImageName(image.getOriginalFilename());
+
+} else if (itemsDto.getExistingImage() != null
+        && !itemsDto.getExistingImage().isEmpty()) {
+
+    // KEEP existing image (IMPORTANT: you must persist it)
+    itemsDto.setImage(itemsDto.getExistingImage());
+
+} else {
+
+    // DELETE image
+    itemsDto.setImage(null);
+    itemsDto.setImageName(null);
+}
             Items updatedItem = itemsService.updateAnItem(id, itemsDto);
             if(updatedItem == null){
                 ApiResponse<Items>response = new ApiResponse<>(false,"Update failed",null);
@@ -185,8 +203,8 @@ public class HomeController {
         }
     }
 
-    @GetMapping("item/id/")
-    public ResponseEntity<ApiResponse<Items>> getItemById(@RequestParam String id) {
+    @GetMapping("item/{id}")
+    public ResponseEntity<ApiResponse<Items>> getItemById(@PathVariable String id){
         try{
         Optional<Items> opsItem = itemsService.findById(id);
         if(!opsItem.isPresent()){

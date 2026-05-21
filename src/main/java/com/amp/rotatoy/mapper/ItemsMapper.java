@@ -1,5 +1,6 @@
 package com.amp.rotatoy.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -13,14 +14,21 @@ import com.amp.rotatoy.model.Items;
 //instead of mapper class
 
 
-@Mapper(componentModel = "spring",nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface ItemsMapper {
 
     Items toEntity(ItemsDto itemsDto);
 
     ItemsDto toDto(Items items);
 
-    
+    @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateExceptNulls(ItemsDto dto, @MappingTarget Items entity);
+
+    @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
+    void updateForDelete(ItemsDto dto, @MappingTarget Items entity);
+
     @Mapping(target = "id", ignore = true)
     void updateItemFromDto(ItemsDto dto, @MappingTarget Items items);
 
